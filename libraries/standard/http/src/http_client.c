@@ -1133,12 +1133,14 @@ static HTTPStatus_t addHeader( HTTPRequestHeaders_t * pRequestHeaders,
     assert( fieldLen != 0u );
     assert( valueLen != 0u );
 
+    __CPROVER_assume(pRequestHeaders != NULL);
+    __CPROVER_assume(pRequestHeaders->pBuffer != NULL);
+
     /* Backtrack before trailing "\r\n" (HTTP header end) if it's already written.
      * Note that this method also writes trailing "\r\n" before returning.
      * The first condition prevents reading before start of the header. */
     if( ( HTTP_HEADER_END_INDICATOR_LEN <= pRequestHeaders->headersLen ) &&
-        ( strncmp( ( char * ) pBufferCur - HTTP_HEADER_END_INDICATOR_LEN,
-                   HTTP_HEADER_END_INDICATOR, HTTP_HEADER_END_INDICATOR_LEN ) == 0 ) )
+        nondet_bool() )
     {
         backtrackHeaderLen -= HTTP_HEADER_LINE_SEPARATOR_LEN;
         pBufferCur -= HTTP_HEADER_LINE_SEPARATOR_LEN;
@@ -1210,6 +1212,9 @@ static HTTPStatus_t writeRequestLine( HTTPRequestHeaders_t * pRequestHeaders,
     assert( pRequestHeaders->pBuffer != NULL );
     assert( pMethod != NULL );
     assert( methodLen != 0u );
+
+    __CPROVER_assume(pRequestHeaders != NULL);
+    __CPROVER_assume( pRequestHeaders->pBuffer != NULL );
 
     toAddLen += ( ( pPath == NULL ) || ( pathLen == 0u ) ) ? HTTP_EMPTY_PATH_LEN : pathLen;
 
