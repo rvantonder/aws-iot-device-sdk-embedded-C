@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include <http_cbmc_state.h>
 
 #include "http_client.h"
 #include "private/http_client_internal.h"
