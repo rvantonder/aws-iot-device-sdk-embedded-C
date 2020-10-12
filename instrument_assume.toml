@@ -1,0 +1,7 @@
+[assume]
+match=':[indent~^[ ]+]assert(:[cond]);'
+rewrite='''
+
+:[indent]assert(:[cond]);
+:[indent]__CPROVER_assume(:[cond]);
+'''
