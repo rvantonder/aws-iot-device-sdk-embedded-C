@@ -636,7 +636,11 @@ static int sendHttpRequest( const HTTPTransportInterface_t * pTransportInterface
     HTTPStatus_t httpStatus = HTTP_SUCCESS;
 
     assert( pMethod != NULL );
+    __CPROVER_assume( pMethod != NULL );
+
     assert( methodLen > 0 );
+    __CPROVER_assume( methodLen > 0 );
+
 
     /* Initialize all HTTP Client library API structs to 0. */
     ( void ) memset( &requestInfo, 0, sizeof( requestInfo ) );

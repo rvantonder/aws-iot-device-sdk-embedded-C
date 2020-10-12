@@ -288,6 +288,8 @@ static uint8_t * encodeRemainingLength( uint8_t * pDestination,
     size_t remainingLength = length;
 
     assert( pDestination != NULL );
+    __CPROVER_assume( pDestination != NULL );
+
 
     pLengthEnd = pDestination;
 
@@ -324,6 +326,8 @@ static uint8_t * encodeString( uint8_t * pDestination,
     const uint8_t * pSourceBuffer = ( const uint8_t * ) source;
 
     assert( pDestination != NULL );
+    __CPROVER_assume( pDestination != NULL );
+
 
     pBuffer = pDestination;
 
@@ -357,8 +361,14 @@ static bool calculatePublishPacketSize( const MQTTPublishInfo_t * pPublishInfo,
     size_t packetSize = 0, payloadLimit = 0;
 
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
     assert( pRemainingLength != NULL );
+    __CPROVER_assume( pRemainingLength != NULL );
+
     assert( pPacketSize != NULL );
+    __CPROVER_assume( pPacketSize != NULL );
+
 
     /* The variable header of a PUBLISH packet always contains the topic name.
      * The first 2 bytes of UTF-8 string contains length of the string.
@@ -441,11 +451,19 @@ static void serializePublishCommon( const MQTTPublishInfo_t * pPublishInfo,
     uint8_t publishFlags = MQTT_PACKET_TYPE_PUBLISH;
 
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
     assert( pFixedBuffer != NULL );
+    __CPROVER_assume( pFixedBuffer != NULL );
+
     /* Packet Id should be non zero for QoS1 and QoS2. */
     assert( pPublishInfo->qos == MQTTQoS0 || packetIdentifier != 0U );
+    __CPROVER_assume( pPublishInfo->qos == MQTTQoS0 || packetIdentifier != 0U );
+
     /* Duplicate flag should be set only for Qos1 or Qos2. */
     assert( ( !pPublishInfo->dup ) || ( pPublishInfo->qos > MQTTQoS0 ) );
+    __CPROVER_assume( ( !pPublishInfo->dup ) || ( pPublishInfo->qos > MQTTQoS0 ) );
+
 
     /* Get the start address of the buffer. */
     pIndex = pFixedBuffer->pBuffer;
@@ -519,6 +537,8 @@ static void serializePublishCommon( const MQTTPublishInfo_t * pPublishInfo,
     /* Ensure that the difference between the end and beginning of the buffer
      * is less than the buffer size. */
     assert( ( ( size_t ) ( pIndex - pFixedBuffer->pBuffer ) ) <= pFixedBuffer->size );
+    __CPROVER_assume( ( ( size_t ) ( pIndex - pFixedBuffer->pBuffer ) ) <= pFixedBuffer->size );
+
 }
 
 static size_t getRemainingLength( MQTTTransportRecvFunc_t recvFunc,
@@ -657,6 +677,8 @@ static MQTTStatus_t processPublishFlags( uint8_t publishFlags,
     MQTTStatus_t status = MQTTSuccess;
 
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
 
     /* Check for QoS 2. */
     if( UINT8_CHECK_BIT( publishFlags, MQTT_PUBLISH_FLAG_QOS2 ) )
@@ -721,6 +743,8 @@ static void logConnackResponse( uint8_t responseCode )
     ( void ) pConnackResponses;
 
     assert( responseCode <= 5 );
+    __CPROVER_assume( responseCode <= 5 );
+
 
     if( responseCode == 0u )
     {
@@ -743,7 +767,11 @@ static MQTTStatus_t deserializeConnack( const MQTTPacketInfo_t * pConnack,
     const uint8_t * pRemainingData = NULL;
 
     assert( pConnack != NULL );
+    __CPROVER_assume( pConnack != NULL );
+
     assert( pSessionPresent != NULL );
+    __CPROVER_assume( pSessionPresent != NULL );
+
     pRemainingData = pConnack->pRemainingData;
 
     /* According to MQTT 3.1.1, the second byte of CONNACK must specify a
@@ -826,9 +854,17 @@ static MQTTStatus_t calculateSubscriptionPacketSize( const MQTTSubscribeInfo_t *
     size_t i = 0, packetSize = 0;
 
     assert( pSubscriptionList != NULL );
+    __CPROVER_assume( pSubscriptionList != NULL );
+
     assert( subscriptionCount != 0U );
+    __CPROVER_assume( subscriptionCount != 0U );
+
     assert( pRemainingLength != NULL );
+    __CPROVER_assume( pRemainingLength != NULL );
+
     assert( pPacketSize != NULL );
+    __CPROVER_assume( pPacketSize != NULL );
+
 
     /* The variable header of a subscription packet consists of a 2-byte packet
      * identifier. */
@@ -890,6 +926,8 @@ static MQTTStatus_t readSubackStatus( size_t statusCount,
     size_t i = 0;
 
     assert( pStatusStart != NULL );
+    __CPROVER_assume( pStatusStart != NULL );
+
 
     /* Iterate through each status byte in the SUBACK packet. */
     for( i = 0; i < statusCount; i++ )
@@ -945,7 +983,11 @@ static MQTTStatus_t deserializeSuback( const MQTTPacketInfo_t * pSuback,
     const uint8_t * pVariableHeader = NULL;
 
     assert( pSuback != NULL );
+    __CPROVER_assume( pSuback != NULL );
+
     assert( pPacketIdentifier != NULL );
+    __CPROVER_assume( pPacketIdentifier != NULL );
+
 
     remainingLength = pSuback->remainingLength;
     pVariableHeader = pSuback->pRemainingData;
@@ -1032,8 +1074,14 @@ static MQTTStatus_t deserializePublish( const MQTTPacketInfo_t * pIncomingPacket
     const uint8_t * pVariableHeader, * pPacketIdentifierHigh;
 
     assert( pIncomingPacket != NULL );
+    __CPROVER_assume( pIncomingPacket != NULL );
+
     assert( pPacketId != NULL );
+    __CPROVER_assume( pPacketId != NULL );
+
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
     pVariableHeader = pIncomingPacket->pRemainingData;
     /* The flags are the lower 4 bits of the first byte in PUBLISH. */
     status = processPublishFlags( ( pIncomingPacket->type & 0x0FU ), pPublishInfo );
@@ -1119,7 +1167,11 @@ static MQTTStatus_t deserializeSimpleAck( const MQTTPacketInfo_t * pAck,
     MQTTStatus_t status = MQTTSuccess;
 
     assert( pAck != NULL );
+    __CPROVER_assume( pAck != NULL );
+
     assert( pPacketIdentifier != NULL );
+    __CPROVER_assume( pPacketIdentifier != NULL );
+
 
     /* Check that the "Remaining length" of the received ACK is 2. */
     if( pAck->remainingLength != MQTT_PACKET_SIMPLE_ACK_REMAINING_LENGTH )
@@ -1153,6 +1205,8 @@ static MQTTStatus_t deserializePingresp( const MQTTPacketInfo_t * pPingresp )
     MQTTStatus_t status = MQTTSuccess;
 
     assert( pPingresp != NULL );
+    __CPROVER_assume( pPingresp != NULL );
+
 
     /* Check the "Remaining length" (second byte) of the received PINGRESP is 0. */
     if( pPingresp->remainingLength != MQTT_PACKET_PINGRESP_REMAINING_LENGTH )
@@ -1177,7 +1231,11 @@ static void serializeConnectPacket( const MQTTConnectInfo_t * pConnectInfo,
     uint8_t * pIndex = NULL;
 
     assert( pConnectInfo != NULL );
+    __CPROVER_assume( pConnectInfo != NULL );
+
     assert( pBuffer != NULL );
+    __CPROVER_assume( pBuffer != NULL );
+
 
     pIndex = pBuffer->pBuffer;
     /* The first byte in the CONNECT packet is the control packet type. */
@@ -1282,6 +1340,8 @@ static void serializeConnectPacket( const MQTTConnectInfo_t * pConnectInfo,
     /* Ensure that the difference between the end and beginning of the buffer
      * is less than the buffer size. */
     assert( ( ( size_t ) ( pIndex - pBuffer->pBuffer ) ) <= pBuffer->size );
+    __CPROVER_assume( ( ( size_t ) ( pIndex - pBuffer->pBuffer ) ) <= pBuffer->size );
+
 }
 
 /*-----------------------------------------------------------*/

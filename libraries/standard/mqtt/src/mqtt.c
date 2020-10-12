@@ -296,7 +296,11 @@ static int32_t sendPacket( MQTTContext_t * pContext,
     uint32_t sendTime = 0U;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pContext->callbacks.getTime != NULL );
+    __CPROVER_assume( pContext->callbacks.getTime != NULL );
+
 
     bytesRemaining = bytesToSend;
 
@@ -374,6 +378,8 @@ static MQTTPubAckType_t getAckFromPacketType( uint8_t packetType )
             /* This function is only called after checking the type is one of
              * the above four values, so packet type must be PUBCOMP here. */
             assert( packetType == MQTT_PACKET_TYPE_PUBCOMP );
+            __CPROVER_assume( packetType == MQTT_PACKET_TYPE_PUBCOMP );
+
             ackType = MQTTPubcomp;
             break;
     }
@@ -396,8 +402,14 @@ static int32_t recvExact( const MQTTContext_t * pContext,
     bool receiveError = false;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( bytesToRecv <= pContext->networkBuffer.size );
+    __CPROVER_assume( bytesToRecv <= pContext->networkBuffer.size );
+
     assert( pContext->callbacks.getTime != NULL );
+    __CPROVER_assume( pContext->callbacks.getTime != NULL );
+
     pIndex = pContext->networkBuffer.pBuffer;
     recvFunc = pContext->transportInterface.recv;
     getTimeStampMs = pContext->callbacks.getTime;
@@ -451,7 +463,11 @@ static MQTTStatus_t discardPacket( const MQTTContext_t * pContext,
     bool receiveError = false;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pContext->callbacks.getTime != NULL );
+    __CPROVER_assume( pContext->callbacks.getTime != NULL );
+
     bytesToReceive = pContext->networkBuffer.size;
     getTimeStampMs = pContext->callbacks.getTime;
 
@@ -515,6 +531,8 @@ static MQTTStatus_t receivePacket( const MQTTContext_t * pContext,
     size_t bytesToReceive = 0U;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     if( incomingPacket.remainingLength > pContext->networkBuffer.size )
     {
@@ -596,6 +614,8 @@ static MQTTStatus_t sendPublishAcks( MQTTContext_t * pContext,
     MQTTPubAckType_t packetType;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     packetTypeByte = getAckTypeToSend( publishState );
 
@@ -651,6 +671,8 @@ static MQTTStatus_t handleKeepAlive( MQTTContext_t * pContext )
     uint32_t now = 0U, keepAliveMs = 0U;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     now = pContext->callbacks.getTime();
     keepAliveMs = 1000U * ( uint32_t ) pContext->keepAliveIntervalSec;
 
@@ -688,7 +710,11 @@ static MQTTStatus_t handleIncomingPublish( MQTTContext_t * pContext,
     bool duplicatePublish = false;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pIncomingPacket != NULL );
+    __CPROVER_assume( pIncomingPacket != NULL );
+
 
     status = MQTT_DeserializePublish( pIncomingPacket, &packetIdentifier, &publishInfo );
     LogInfo( ( "De-serialized incoming PUBLISH packet: DeserializerResult=%d", status ) );
@@ -789,8 +815,14 @@ static MQTTStatus_t handlePublishAcks( MQTTContext_t * pContext,
     MQTTEventCallback_t appCallback;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pIncomingPacket != NULL );
+    __CPROVER_assume( pIncomingPacket != NULL );
+
     assert( pContext->callbacks.appCallback != NULL );
+    __CPROVER_assume( pContext->callbacks.appCallback != NULL );
+
 
     appCallback = pContext->callbacks.appCallback;
 
@@ -856,7 +888,11 @@ static MQTTStatus_t handleIncomingAck( MQTTContext_t * pContext,
     MQTTEventCallback_t appCallback = NULL;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pIncomingPacket != NULL );
+    __CPROVER_assume( pIncomingPacket != NULL );
+
 
     appCallback = pContext->callbacks.appCallback;
 
@@ -916,6 +952,8 @@ static MQTTStatus_t receiveSingleIteration( MQTTContext_t * pContext,
     MQTTPacketInfo_t incomingPacket;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     status = MQTT_GetIncomingPacketTypeAndLength( pContext->transportInterface.recv,
                                                   pContext->transportInterface.networkContext,
@@ -1022,8 +1060,14 @@ static MQTTStatus_t sendPublish( MQTTContext_t * pContext,
     int32_t bytesSent = 0;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
     assert( headerSize > 0 );
+    __CPROVER_assume( headerSize > 0 );
+
 
     /* Send header first. */
     bytesSent = sendPacket( pContext,
@@ -1076,8 +1120,14 @@ static MQTTStatus_t receiveConnack( const MQTTContext_t * pContext,
     bool timeExpired = true;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pIncomingPacket != NULL );
+    __CPROVER_assume( pIncomingPacket != NULL );
+
     assert( pContext->callbacks.getTime != NULL );
+    __CPROVER_assume( pContext->callbacks.getTime != NULL );
+
 
     getTimeStamp = pContext->callbacks.getTime;
     /* Get the entry time for the function. */
@@ -1162,6 +1212,8 @@ static MQTTStatus_t resendPendingAcks( MQTTContext_t * pContext )
     MQTTPublishState_t state = MQTTStateNull;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Get the next packet Id for which a PUBREL need to be resent. */
     packetId = MQTT_PubrelToResend( pContext, &cursor, &state );
@@ -1189,8 +1241,14 @@ static MQTTStatus_t serializePublish( const MQTTContext_t * pContext,
     size_t remainingLength = 0UL, packetSize = 0UL;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
     assert( pHeaderSize != NULL );
+    __CPROVER_assume( pHeaderSize != NULL );
+
 
     /* Get the remaining length and packet size.*/
     status = MQTT_GetPublishPacketSize( pPublishInfo,

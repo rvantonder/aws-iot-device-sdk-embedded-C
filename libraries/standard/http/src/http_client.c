@@ -467,7 +467,11 @@ static void processCompleteHeader( HTTPParsingContext_t * pParsingContext )
     HTTPResponse_t * pResponse = NULL;
 
     assert( pParsingContext != NULL );
+    __CPROVER_assume( pParsingContext != NULL );
+
     assert( pParsingContext->pResponse != NULL );
+    __CPROVER_assume( pParsingContext->pResponse != NULL );
+
 
     pResponse = pParsingContext->pResponse;
 
@@ -516,12 +520,18 @@ static int httpParserOnMessageBeginCallback( http_parser * pHttpParser )
     HTTPResponse_t * pResponse = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
     pResponse = pParsingContext->pResponse;
 
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
 
     /* Parsing has initiated. */
     pParsingContext->state = HTTP_PARSING_INCOMPLETE;
@@ -541,13 +551,21 @@ static int httpParserOnStatusCallback( http_parser * pHttpParser,
     HTTPResponse_t * pResponse = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
     assert( pLoc != NULL );
+    __CPROVER_assume( pLoc != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
     pResponse = pParsingContext->pResponse;
 
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
 
     /* Set the location of what to parse next. */
     pParsingContext->pBufferCur = pLoc + length;
@@ -582,13 +600,21 @@ static int httpParserOnHeaderFieldCallback( http_parser * pHttpParser,
     HTTPResponse_t * pResponse = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
     assert( pLoc != NULL );
+    __CPROVER_assume( pLoc != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
     pResponse = pParsingContext->pResponse;
 
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
 
     /* If this is the first time httpParserOnHeaderFieldCallback() has been
      * invoked on a response, then the headers location in the response was set
@@ -639,13 +665,21 @@ static int httpParserOnHeaderValueCallback( http_parser * pHttpParser,
     HTTPResponse_t * pResponse = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
     assert( pLoc != NULL );
+    __CPROVER_assume( pLoc != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
     pResponse = pParsingContext->pResponse;
 
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
 
     /* Set the location of what to parse next. */
     pParsingContext->pBufferCur = pLoc + length;
@@ -669,6 +703,8 @@ static int httpParserOnHeaderValueCallback( http_parser * pHttpParser,
      * should never be NULL. This would indicate a bug in the http-parser
      * library. */
     assert( pParsingContext->pLastHeaderField != NULL );
+    __CPROVER_assume( pParsingContext->pLastHeaderField != NULL );
+
 
     LogDebug( ( "Response parsing: Found a header value: "
                 "HeaderValue=%.*s",
@@ -687,12 +723,18 @@ static int httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
     HTTPResponse_t * pResponse = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
     pResponse = pParsingContext->pResponse;
 
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
 
     /* Set the location of what to parse next. */
     pParsingContext->pBufferCur += HTTP_HEADER_END_INDICATOR_LEN;
@@ -703,6 +745,8 @@ static int httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
     {
         /* The start of the headers ALWAYS come before the the end of the headers. */
         assert( ( const char * ) ( pResponse->pHeaders ) < pParsingContext->pBufferCur );
+        __CPROVER_assume( ( const char * ) ( pResponse->pHeaders ) < pParsingContext->pBufferCur );
+
 
         /* MISRA Rule 10.8 flags the following line for casting from a signed
          * pointer difference to a size_t. This rule is suppressed because in
@@ -773,16 +817,30 @@ static int httpParserOnBodyCallback( http_parser * pHttpParser,
     char * pNextWriteLoc = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
     assert( pLoc != NULL );
+    __CPROVER_assume( pLoc != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
     pResponse = pParsingContext->pResponse;
 
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
     assert( pResponse->pBuffer != NULL );
+    __CPROVER_assume( pResponse->pBuffer != NULL );
+
     assert( pLoc > ( const char * ) ( pResponse->pBuffer ) );
+    __CPROVER_assume( pLoc > ( const char * ) ( pResponse->pBuffer ) );
+
     assert( pLoc < ( const char * ) ( pResponse->pBuffer + pResponse->bufferLen ) );
+    __CPROVER_assume( pLoc < ( const char * ) ( pResponse->pBuffer + pResponse->bufferLen ) );
+
 
     /* If this is the first time httpParserOnBodyCallback() has been invoked,
      * then the start of the response body is NULL. */
@@ -838,7 +896,11 @@ static int httpParserOnMessageCompleteCallback( http_parser * pHttpParser )
     HTTPParsingContext_t * pParsingContext = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pHttpParser->data != NULL );
+    __CPROVER_assume( pHttpParser->data != NULL );
+
 
     pParsingContext = ( HTTPParsingContext_t * ) ( pHttpParser->data );
 
@@ -855,6 +917,8 @@ static int httpParserOnMessageCompleteCallback( http_parser * pHttpParser )
 static void initializeParsingContextForFirstResponse( HTTPParsingContext_t * pParsingContext )
 {
     assert( pParsingContext != NULL );
+    __CPROVER_assume( pParsingContext != NULL );
+
 
     /* Initialize the third-party HTTP parser to parse responses. */
     http_parser_init( &( pParsingContext->httpParser ), HTTP_RESPONSE );
@@ -875,6 +939,8 @@ static HTTPStatus_t processHttpParserError( const http_parser * pHttpParser )
     HTTPStatus_t returnStatus = HTTP_SUCCESS;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
 
     switch( ( enum http_errno ) ( pHttpParser->http_errno ) )
     {
@@ -994,8 +1060,14 @@ static HTTPStatus_t parseHttpResponse( HTTPParsingContext_t * pParsingContext,
     size_t bytesParsed = 0u;
 
     assert( pParsingContext != NULL );
+    __CPROVER_assume( pParsingContext != NULL );
+
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
     assert( isHeadResponse <= 1 );
+    __CPROVER_assume( isHeadResponse <= 1 );
+
 
     /* If this is the first time this parsing context is used, then set the
      * response input. */
@@ -1026,6 +1098,8 @@ static HTTPStatus_t parseHttpResponse( HTTPParsingContext_t * pParsingContext,
          * therefore a development bug to have this function invoked in
          * succession without the same response. */
         assert( pParsingContext->pResponse == pResponse );
+        __CPROVER_assume( pParsingContext->pResponse == pResponse );
+
     }
 
     /* Initialize the callbacks that http_parser_execute will invoke. */
@@ -1079,7 +1153,11 @@ static uint8_t convertInt32ToAscii( int32_t value,
     char temp = '\0';
 
     assert( pBuffer != NULL );
+    __CPROVER_assume( pBuffer != NULL );
+
     assert( bufferLength >= MAX_INT32_NO_OF_DECIMAL_DIGITS );
+    __CPROVER_assume( bufferLength >= MAX_INT32_NO_OF_DECIMAL_DIGITS );
+
     ( void ) bufferLength;
 
     /* If the value is negative, write the '-' (minus) character to the buffer. */
@@ -1127,11 +1205,23 @@ static HTTPStatus_t addHeader( HTTPRequestHeaders_t * pRequestHeaders,
     size_t backtrackHeaderLen = pRequestHeaders->headersLen;
 
     assert( pRequestHeaders != NULL );
+    __CPROVER_assume( pRequestHeaders != NULL );
+
     assert( pRequestHeaders->pBuffer != NULL );
+    __CPROVER_assume( pRequestHeaders->pBuffer != NULL );
+
     assert( pField != NULL );
+    __CPROVER_assume( pField != NULL );
+
     assert( pValue != NULL );
+    __CPROVER_assume( pValue != NULL );
+
     assert( fieldLen != 0u );
+    __CPROVER_assume( fieldLen != 0u );
+
     assert( valueLen != 0u );
+    __CPROVER_assume( valueLen != 0u );
+
 
     /* Backtrack before trailing "\r\n" (HTTP header end) if it's already written.
      * Note that this method also writes trailing "\r\n" before returning.
@@ -1207,9 +1297,17 @@ static HTTPStatus_t writeRequestLine( HTTPRequestHeaders_t * pRequestHeaders,
                       HTTP_HEADER_LINE_SEPARATOR_LEN;
 
     assert( pRequestHeaders != NULL );
+    __CPROVER_assume( pRequestHeaders != NULL );
+
     assert( pRequestHeaders->pBuffer != NULL );
+    __CPROVER_assume( pRequestHeaders->pBuffer != NULL );
+
     assert( pMethod != NULL );
+    __CPROVER_assume( pMethod != NULL );
+
     assert( methodLen != 0u );
+    __CPROVER_assume( methodLen != 0u );
+
 
     toAddLen += ( ( pPath == NULL ) || ( pathLen == 0u ) ) ? HTTP_EMPTY_PATH_LEN : pathLen;
 
@@ -1533,8 +1631,14 @@ static HTTPStatus_t sendHttpData( const HTTPTransportInterface_t * pTransport,
     size_t bytesRemaining = dataLen;
 
     assert( pTransport != NULL );
+    __CPROVER_assume( pTransport != NULL );
+
     assert( pTransport->send != NULL );
+    __CPROVER_assume( pTransport->send != NULL );
+
     assert( pData != NULL );
+    __CPROVER_assume( pData != NULL );
+
 
     /* Loop until all data is sent. */
     while( ( bytesRemaining > 0UL ) && ( returnStatus != HTTP_NETWORK_ERROR ) )
@@ -1590,7 +1694,11 @@ static HTTPStatus_t addContentLengthHeader( HTTPRequestHeaders_t * pRequestHeade
     uint8_t contentLengthValueNumBytes = 0u;
 
     assert( pRequestHeaders != NULL );
+    __CPROVER_assume( pRequestHeaders != NULL );
+
     assert( contentLength > 0u );
+    __CPROVER_assume( contentLength > 0u );
+
 
     contentLengthValueNumBytes = convertInt32ToAscii( ( int32_t ) contentLength,
                                                       pContentLengthValue,
@@ -1623,8 +1731,14 @@ static HTTPStatus_t sendHttpHeaders( const HTTPTransportInterface_t * pTransport
     uint8_t shouldSendContentLength = 0u;
 
     assert( pTransport != NULL );
+    __CPROVER_assume( pTransport != NULL );
+
     assert( pTransport->send != NULL );
+    __CPROVER_assume( pTransport->send != NULL );
+
     assert( pRequestHeaders != NULL );
+    __CPROVER_assume( pRequestHeaders != NULL );
+
 
     /* Send the content length header if the flag to disable is not set and the
      * body length is greater than zero. */
@@ -1657,8 +1771,14 @@ static HTTPStatus_t sendHttpBody( const HTTPTransportInterface_t * pTransport,
     HTTPStatus_t returnStatus = HTTP_SUCCESS;
 
     assert( pTransport != NULL );
+    __CPROVER_assume( pTransport != NULL );
+
     assert( pTransport->send != NULL );
+    __CPROVER_assume( pTransport->send != NULL );
+
     assert( pRequestBodyBuf != NULL );
+    __CPROVER_assume( pRequestBodyBuf != NULL );
+
 
     /* Send the request body. */
     LogDebug( ( "Sending the HTTP request body: BodyBytes=%d",
@@ -1679,9 +1799,17 @@ static HTTPStatus_t receiveHttpData( const HTTPTransportInterface_t * pTransport
     int32_t transportStatus = 0;
 
     assert( pTransport != NULL );
+    __CPROVER_assume( pTransport != NULL );
+
     assert( pTransport->recv != NULL );
+    __CPROVER_assume( pTransport->recv != NULL );
+
     assert( pBuffer != NULL );
+    __CPROVER_assume( pBuffer != NULL );
+
     assert( pBytesReceived != NULL );
+    __CPROVER_assume( pBytesReceived != NULL );
+
 
     transportStatus = pTransport->recv( pTransport->pContext,
                                         pBuffer,
@@ -1735,7 +1863,12 @@ static HTTPStatus_t getFinalResponseStatus( HTTPParsingState_t parsingState,
 
     assert( parsingState >= HTTP_PARSING_NONE &&
             parsingState <= HTTP_PARSING_COMPLETE );
+    __CPROVER_assume( parsingState >= HTTP_PARSING_NONE &&
+            parsingState <= HTTP_PARSING_COMPLETE );
+
     assert( totalReceived <= responseBufferLen );
+    __CPROVER_assume( totalReceived <= responseBufferLen );
+
 
     /* If no parsing occurred, that means network data was never received. */
     if( parsingState == HTTP_PARSING_NONE )
@@ -1786,10 +1919,20 @@ static HTTPStatus_t receiveAndParseHttpResponse( const HTTPTransportInterface_t 
     uint8_t isHeadResponse = 0u;
 
     assert( pTransport != NULL );
+    __CPROVER_assume( pTransport != NULL );
+
     assert( pTransport->recv != NULL );
+    __CPROVER_assume( pTransport->recv != NULL );
+
     assert( pResponse != NULL );
+    __CPROVER_assume( pResponse != NULL );
+
     assert( pRequestHeaders != NULL );
+    __CPROVER_assume( pRequestHeaders != NULL );
+
     assert( pRequestHeaders->headersLen >= HTTP_MINIMUM_REQUEST_LINE_LENGTH );
+    __CPROVER_assume( pRequestHeaders->headersLen >= HTTP_MINIMUM_REQUEST_LINE_LENGTH );
+
 
     /* The parsing context needs to know if the response is for a HEAD request.
      * The third-party parser requires parsing is manually indicated to stop
@@ -1980,17 +2123,31 @@ static int findHeaderFieldParserCallback( http_parser * pHttpParser,
     findHeaderContext_t * pContext = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pFieldLoc != NULL );
+    __CPROVER_assume( pFieldLoc != NULL );
+
     assert( fieldLen > 0u );
+    __CPROVER_assume( fieldLen > 0u );
+
 
     pContext = ( findHeaderContext_t * ) pHttpParser->data;
 
     assert( pContext->pField != NULL );
+    __CPROVER_assume( pContext->pField != NULL );
+
     assert( pContext->fieldLen > 0u );
+    __CPROVER_assume( pContext->fieldLen > 0u );
+
 
     /* The header found flags should not be set. */
     assert( pContext->fieldFound == 0u );
+    __CPROVER_assume( pContext->fieldFound == 0u );
+
     assert( pContext->valueFound == 0u );
+    __CPROVER_assume( pContext->valueFound == 0u );
+
 
     /* Check whether the parsed header matches the header we are looking for. */
     if( ( fieldLen == pContext->fieldLen ) &&
@@ -2021,18 +2178,34 @@ static int findHeaderValueParserCallback( http_parser * pHttpParser,
     findHeaderContext_t * pContext = NULL;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
     assert( pVaLueLoc != NULL );
+    __CPROVER_assume( pVaLueLoc != NULL );
+
     assert( valueLen > 0u );
+    __CPROVER_assume( valueLen > 0u );
+
 
     pContext = ( findHeaderContext_t * ) pHttpParser->data;
 
     assert( pContext->pField != NULL );
+    __CPROVER_assume( pContext->pField != NULL );
+
     assert( pContext->fieldLen > 0u );
+    __CPROVER_assume( pContext->fieldLen > 0u );
+
     assert( pContext->pValueLoc != NULL );
+    __CPROVER_assume( pContext->pValueLoc != NULL );
+
     assert( pContext->pValueLen != NULL );
+    __CPROVER_assume( pContext->pValueLen != NULL );
+
 
     /* The header value found flag should not be set. */
     assert( pContext->valueFound == 0u );
+    __CPROVER_assume( pContext->valueFound == 0u );
+
 
     if( pContext->fieldFound == 1u )
     {
@@ -2069,6 +2242,8 @@ static int findHeaderOnHeaderCompleteCallback( http_parser * pHttpParser )
     ( void ) pHttpParser;
 
     assert( pHttpParser != NULL );
+    __CPROVER_assume( pHttpParser != NULL );
+
 
     pContext = ( findHeaderContext_t * ) pHttpParser->data;
 
@@ -2134,6 +2309,8 @@ static HTTPStatus_t findHeaderInResponse( const uint8_t * pBuffer,
     {
         /* If header field is not found, then both the flags should be zero. */
         assert( context.valueFound == 0u );
+        __CPROVER_assume( context.valueFound == 0u );
+
 
         /* Header is not present in buffer. */
         LogWarn( ( "Header not found in response buffer: "
@@ -2162,6 +2339,8 @@ static HTTPStatus_t findHeaderInResponse( const uint8_t * pBuffer,
 
         /* Header is found. */
         assert( ( context.fieldFound == 1u ) && ( context.valueFound == 1u ) );
+        __CPROVER_assume( ( context.fieldFound == 1u ) && ( context.valueFound == 1u ) );
+
 
         LogDebug( ( "Found requested header in response: "
                     "HeaderName=%.*s, HeaderValue=%.*s",

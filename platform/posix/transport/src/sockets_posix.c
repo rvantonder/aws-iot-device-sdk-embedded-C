@@ -116,7 +116,11 @@ static SocketStatus_t resolveHostName( const char * pHostName,
     struct addrinfo hints;
 
     assert( pHostName != NULL );
+    __CPROVER_assume( pHostName != NULL );
+
     assert( hostNameLength > 0 );
+    __CPROVER_assume( hostNameLength > 0 );
+
 
     /* Add hints to retrieve only TCP sockets in getaddrinfo. */
     ( void ) memset( &hints, 0, sizeof( hints ) );
@@ -158,9 +162,17 @@ static SocketStatus_t attemptConnection( struct addrinfo * pListHead,
     char resolvedIpAddr[ INET6_ADDRSTRLEN ];
 
     assert( pListHead != NULL );
+    __CPROVER_assume( pListHead != NULL );
+
     assert( pHostName != NULL );
+    __CPROVER_assume( pHostName != NULL );
+
     assert( hostNameLength > 0 );
+    __CPROVER_assume( hostNameLength > 0 );
+
     assert( pTcpSocket != NULL );
+    __CPROVER_assume( pTcpSocket != NULL );
+
 
     netPort = htons( port );
 

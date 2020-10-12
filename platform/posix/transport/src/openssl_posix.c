@@ -136,7 +136,11 @@ static void setOptionalConfigurations( SSL * pSsl,
         char * cwd = NULL;
 
         assert( path != NULL );
+        __CPROVER_assume( path != NULL );
+
         assert( fileType != NULL );
+        __CPROVER_assume( fileType != NULL );
+
 
         /* Log the absolute directory based on first character of path. */
         if( ( path[ 0 ] == '/' ) || ( path[ 0 ] == '\\' ) )
@@ -171,7 +175,11 @@ static int setRootCa( SSL_CTX * pSslContext,
     X509 * pRootCa = NULL;
 
     assert( pSslContext != NULL );
+    __CPROVER_assume( pSslContext != NULL );
+
     assert( pRootCaPath != NULL );
+    __CPROVER_assume( pRootCaPath != NULL );
+
 
     #if ( LIBRARY_LOG_LEVEL == LOG_DEBUG )
         logPath( pRootCaPath, ROOT_CA_LABEL );
@@ -238,7 +246,11 @@ static int setClientCertificate( SSL_CTX * pSslContext,
     int sslStatus = -1;
 
     assert( pSslContext != NULL );
+    __CPROVER_assume( pSslContext != NULL );
+
     assert( pClientCertPath != NULL );
+    __CPROVER_assume( pClientCertPath != NULL );
+
 
     #if ( LIBRARY_LOG_LEVEL == LOG_DEBUG )
         logPath( pClientCertPath, CLIENT_CERT_LABEL );
@@ -269,7 +281,11 @@ static int setPrivateKey( SSL_CTX * pSslContext,
     int sslStatus = -1;
 
     assert( pSslContext != NULL );
+    __CPROVER_assume( pSslContext != NULL );
+
     assert( pPrivateKeyPath != NULL );
+    __CPROVER_assume( pPrivateKeyPath != NULL );
+
 
     #if ( LIBRARY_LOG_LEVEL == LOG_DEBUG )
         logPath( pPrivateKeyPath, CLIENT_KEY_LABEL );
@@ -301,7 +317,11 @@ static int setCredentials( SSL_CTX * pSslContext,
     int sslStatus = 0;
 
     assert( pSslContext != NULL );
+    __CPROVER_assume( pSslContext != NULL );
+
     assert( pOpensslCredentials != NULL );
+    __CPROVER_assume( pOpensslCredentials != NULL );
+
 
     if( pOpensslCredentials->pRootCaPath != NULL )
     {
@@ -333,7 +353,11 @@ static void setOptionalConfigurations( SSL * pSsl,
     int sslStatus = -1;
 
     assert( pSsl != NULL );
+    __CPROVER_assume( pSsl != NULL );
+
     assert( pOpensslCredentials != NULL );
+    __CPROVER_assume( pOpensslCredentials != NULL );
+
 
     /* Set TLS ALPN if requested. */
     if( ( pOpensslCredentials->pAlpnProtos != NULL ) &&

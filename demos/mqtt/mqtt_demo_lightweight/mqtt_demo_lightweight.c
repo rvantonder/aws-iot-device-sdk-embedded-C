@@ -502,15 +502,23 @@ static int createMQTTConnectionWithBroker( int tcpSocket,
 
     /* Make sure the packet size is less than static buffer size. */
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
     assert( packetSize < pFixedBuffer->size );
+    __CPROVER_assume( packetSize < pFixedBuffer->size );
+
 
     /* Serialize MQTT connect packet into the provided buffer. */
     result = MQTT_SerializeConnect( &mqttConnectInfo, NULL, remainingLength, pFixedBuffer );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
 
     /* Send the serialized connect packet to the MQTT broker */
     status = send( tcpSocket, ( void * ) pFixedBuffer->pBuffer, packetSize, 0 );
     assert( status == ( int ) packetSize );
+    __CPROVER_assume( status == ( int ) packetSize );
+
 
     /* Reset all fields of the incoming packet structure. */
     memset( ( void * ) &incomingPacket, 0x00, sizeof( MQTTPacketInfo_t ) );
@@ -529,12 +537,20 @@ static int createMQTTConnectionWithBroker( int tcpSocket,
     } while ( ( result == MQTTNoDataAvailable ) && ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) );
 
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
     assert( incomingPacket.type == MQTT_PACKET_TYPE_CONNACK );
+    __CPROVER_assume( incomingPacket.type == MQTT_PACKET_TYPE_CONNACK );
+
     assert( incomingPacket.remainingLength <= pFixedBuffer->size );
+    __CPROVER_assume( incomingPacket.remainingLength <= pFixedBuffer->size );
+
 
     /* Now receive the remaining packet into statically allocated buffer. */
     status = recv( tcpSocket, ( void * ) pFixedBuffer->pBuffer, incomingPacket.remainingLength, 0 );
     assert( status == ( int ) incomingPacket.remainingLength );
+    __CPROVER_assume( status == ( int ) incomingPacket.remainingLength );
+
 
     incomingPacket.pRemainingData = pFixedBuffer->pBuffer;
 
@@ -588,7 +604,11 @@ static void mqttSubscribeToTopic( int tcpSocket,
 
     /* Make sure the packet size is less than static buffer size. */
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
     assert( packetSize < pFixedBuffer->size );
+    __CPROVER_assume( packetSize < pFixedBuffer->size );
+
     subscribePacketIdentifier = getNextPacketIdentifier();
 
     /* Serialize subscribe into statically allocated buffer. */
@@ -599,10 +619,14 @@ static void mqttSubscribeToTopic( int tcpSocket,
                                       pFixedBuffer );
 
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
 
     /* Send Subscribe request to the broker. */
     status = send( tcpSocket, ( void * ) pFixedBuffer->pBuffer, packetSize, 0 );
     assert( status == ( int ) packetSize );
+    __CPROVER_assume( status == ( int ) packetSize );
+
 }
 /*-----------------------------------------------------------*/
 
@@ -636,9 +660,13 @@ static void mqttPublishToTopic( int tcpSocket,
     /* Find out length of Publish packet size. */
     result = MQTT_GetPublishPacketSize( &mqttPublishInfo, &remainingLength, &packetSize );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
 
     /* Make sure the packet size is less than static buffer size. */
     assert( packetSize < pFixedBuffer->size );
+    __CPROVER_assume( packetSize < pFixedBuffer->size );
+
 
     /* Serialize MQTT Publish packet header. The publish message payload will
      * be sent directly in order to avoid copying it into the buffer.
@@ -651,12 +679,18 @@ static void mqttPublishToTopic( int tcpSocket,
     LogDebug( ( "Serialized PUBLISH header size is %lu.",
                 headerSize ) );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
     /* Send Publish header to the broker. */
     status = send( tcpSocket, ( void * ) pFixedBuffer->pBuffer, headerSize, 0 );
     assert( status == ( int ) headerSize );
+    __CPROVER_assume( status == ( int ) headerSize );
+
     /* Send Publish payload to the broker */
     status = send( tcpSocket, ( void * ) mqttPublishInfo.pPayload, mqttPublishInfo.payloadLength, 0 );
     assert( status == ( int ) mqttPublishInfo.payloadLength );
+    __CPROVER_assume( status == ( int ) mqttPublishInfo.payloadLength );
+
 }
 /*-----------------------------------------------------------*/
 
@@ -682,8 +716,12 @@ static void mqttUnsubscribeFromTopic( int tcpSocket,
                                             &remainingLength,
                                             &packetSize );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
     /* Make sure the packet size is less than static buffer size */
     assert( packetSize < pFixedBuffer->size );
+    __CPROVER_assume( packetSize < pFixedBuffer->size );
+
 
     /* Get next unique packet identifier */
     unsubscribePacketIdentifier = getNextPacketIdentifier();
@@ -694,10 +732,14 @@ static void mqttUnsubscribeFromTopic( int tcpSocket,
                                         remainingLength,
                                         pFixedBuffer );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
 
     /* Send Unsubscribe request to the broker. */
     status = send( tcpSocket, ( void * ) pFixedBuffer->pBuffer, packetSize, 0 );
     assert( status == ( int ) packetSize );
+    __CPROVER_assume( status == ( int ) packetSize );
+
 }
 /*-----------------------------------------------------------*/
 
@@ -713,13 +755,19 @@ static void mqttKeepAlive( int tcpSocket,
 
     /*  Make sure the buffer can accommodate ping request. */
     assert( packetSize <= pFixedBuffer->size );
+    __CPROVER_assume( packetSize <= pFixedBuffer->size );
+
 
     result = MQTT_SerializePingreq( pFixedBuffer );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
 
     /* Send Ping Request to the broker. */
     status = send( tcpSocket, ( void * ) pFixedBuffer->pBuffer, packetSize, 0 );
     assert( status == ( int ) packetSize );
+    __CPROVER_assume( status == ( int ) packetSize );
+
 }
 
 /*-----------------------------------------------------------*/
@@ -734,13 +782,19 @@ static void mqttDisconnect( int tcpSocket,
     status = MQTT_GetDisconnectPacketSize( &packetSize );
 
     assert( packetSize <= pFixedBuffer->size );
+    __CPROVER_assume( packetSize <= pFixedBuffer->size );
+
 
     result = MQTT_SerializeDisconnect( pFixedBuffer );
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
 
     /* Send disconnect packet to the broker */
     status = send( tcpSocket, ( void * ) pFixedBuffer->pBuffer, packetSize, 0 );
     assert( status == ( int ) packetSize );
+    __CPROVER_assume( status == ( int ) packetSize );
+
 }
 
 /*-----------------------------------------------------------*/
@@ -754,12 +808,16 @@ static void mqttProcessResponse( MQTTPacketInfo_t * pIncomingPacket,
             LogInfo( ( "Subscribed to the topic %s.\r\n", MQTT_EXAMPLE_TOPIC ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             assert( subscribePacketIdentifier == packetId );
+            __CPROVER_assume( subscribePacketIdentifier == packetId );
+
             break;
 
         case MQTT_PACKET_TYPE_UNSUBACK:
             LogInfo( ( "Unsubscribed from the topic %s.\r\n", MQTT_EXAMPLE_TOPIC ) );
             /* Make sure ACK packet identifier matches with Request packet identifier. */
             assert( unsubscribePacketIdentifier == packetId );
+            __CPROVER_assume( unsubscribePacketIdentifier == packetId );
+
             break;
 
         case MQTT_PACKET_TYPE_PINGRESP:
@@ -779,6 +837,8 @@ static void mqttProcessIncomingPublish( MQTTPublishInfo_t * pPubInfo,
                                         uint16_t packetId )
 {
     assert( pPubInfo != NULL );
+    __CPROVER_assume( pPubInfo != NULL );
+
 
     /* Since this example does not make use of QOS1 or QOS2,
      * packet identifier is not required. */
@@ -834,7 +894,11 @@ static void mqttProcessIncomingPacket( int tcpSocket,
     } while ( ( result == MQTTNoDataAvailable ) && ( receiveAttempts < MQTT_MAX_RECV_ATTEMPTS ) );
 
     assert( result == MQTTSuccess );
+    __CPROVER_assume( result == MQTTSuccess );
+
     assert( incomingPacket.remainingLength <= pFixedBuffer->size );
+    __CPROVER_assume( incomingPacket.remainingLength <= pFixedBuffer->size );
+
 
     /* Current implementation expects an incoming Publish and three different
      * responses ( SUBACK, PINGRESP and UNSUBACK ). */
@@ -842,6 +906,8 @@ static void mqttProcessIncomingPacket( int tcpSocket,
     /* Receive the remaining bytes. */
     status = recv( tcpSocket, ( void * ) pFixedBuffer->pBuffer, incomingPacket.remainingLength, 0 );
     assert( status == ( int ) incomingPacket.remainingLength );
+    __CPROVER_assume( status == ( int ) incomingPacket.remainingLength );
+
 
     incomingPacket.pRemainingData = pFixedBuffer->pBuffer;
 
@@ -849,6 +915,8 @@ static void mqttProcessIncomingPacket( int tcpSocket,
     {
         result = MQTT_DeserializePublish( &incomingPacket, &packetId, &publishInfo );
         assert( result == MQTTSuccess );
+        __CPROVER_assume( result == MQTTSuccess );
+
 
         /* Process incoming Publish message. */
         mqttProcessIncomingPublish( &publishInfo, packetId );
@@ -861,6 +929,8 @@ static void mqttProcessIncomingPacket( int tcpSocket,
          * to NULL */
         result = MQTT_DeserializeAck( &incomingPacket, &packetId, &sessionPresent );
         assert( result == MQTTSuccess );
+        __CPROVER_assume( result == MQTTSuccess );
+
 
         /* Process the response. */
         mqttProcessResponse( &incomingPacket, packetId );
@@ -919,6 +989,8 @@ int main( int argc,
             LogInfo( ( "Establishing MQTT connection to the broker  %s.\r\n", MQTT_BROKER_ENDPOINT ) );
             status = createMQTTConnectionWithBroker( tcpSocket, &fixedBuffer );
             assert( status == EXIT_SUCCESS );
+            __CPROVER_assume( status == EXIT_SUCCESS );
+
 
             /**************************** Subscribe. ******************************/
 
@@ -938,6 +1010,8 @@ int main( int argc,
              * send a PINGREQ packet. */
             status = clock_gettime( CLOCK_MONOTONIC, &currentTimeStamp );
             assert( status == 0 );
+            __CPROVER_assume( status == 0 );
+
             lastControlPacketSentTimeStamp = currentTimeStamp.tv_sec;
 
             /* Process incoming packet from the broker. After sending the subscribe, the
@@ -992,6 +1066,8 @@ int main( int argc,
                     /* Reset the last control packet sent timestamp */
                     status = clock_gettime( CLOCK_MONOTONIC, &currentTimeStamp );
                     assert( status == 0 );
+                    __CPROVER_assume( status == 0 );
+
                     lastControlPacketSentTimeStamp = currentTimeStamp.tv_sec;
                     controlPacketSent = false;
 

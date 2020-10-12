@@ -449,6 +449,8 @@ static void compactRecords( MQTTPubAckInfo_t * records,
     size_t emptyIndex = MQTT_STATE_ARRAY_MAX_COUNT;
 
     assert( records != NULL );
+    __CPROVER_assume( records != NULL );
+
 
     /* Find the empty spots and fill those with non empty values. */
     for( ; index < recordCount; index++ )
@@ -494,7 +496,11 @@ static MQTTStatus_t addRecord( MQTTPubAckInfo_t * records,
     bool validEntryFound = false;
 
     assert( packetId != MQTT_PACKET_ID_INVALID );
+    __CPROVER_assume( packetId != MQTT_PACKET_ID_INVALID );
+
     assert( qos != MQTTQoS0 );
+    __CPROVER_assume( qos != MQTTQoS0 );
+
 
     /* Check if we have to compact the records. This is known by checking if
      * the last spot in the array is filled. */
@@ -555,6 +561,8 @@ static void updateRecord( MQTTPubAckInfo_t * records,
                           bool shouldDelete )
 {
     assert( records != NULL );
+    __CPROVER_assume( records != NULL );
+
 
     if( shouldDelete == true )
     {
@@ -579,8 +587,14 @@ static uint16_t stateSelect( const MQTTContext_t * pMqttContext,
     bool stateCheck = false;
 
     assert( pMqttContext != NULL );
+    __CPROVER_assume( pMqttContext != NULL );
+
     assert( searchStates != 0U );
+    __CPROVER_assume( searchStates != 0U );
+
     assert( pCursor != NULL );
+    __CPROVER_assume( pCursor != NULL );
+
 
     /* Create a bit map with all the outgoing publish states. */
     UINT16_SET_BIT( outgoingStates, MQTTPublishSend );
@@ -591,7 +605,11 @@ static uint16_t stateSelect( const MQTTContext_t * pMqttContext,
 
     /* Only outgoing publish records need to be searched. */
     assert( ( outgoingStates & searchStates ) > 0U );
+    __CPROVER_assume( ( outgoingStates & searchStates ) > 0U );
+
     assert( ( ~outgoingStates & searchStates ) == 0 );
+    __CPROVER_assume( ( ~outgoingStates & searchStates ) == 0 );
+
 
     records = pMqttContext->outgoingPublishRecords;
 
@@ -675,6 +693,8 @@ static MQTTStatus_t updateStateAck( MQTTPubAckInfo_t * records,
     bool isTransitionValid = false;
 
     assert( records != NULL );
+    __CPROVER_assume( records != NULL );
+
 
     /* Record to be deleted if the state transition is completed or if a PUBREC
      * is received for an outgoing QoS2 publish. When a PUBREC is received,
@@ -736,8 +756,14 @@ static MQTTStatus_t updateStatePublish( MQTTContext_t * pMqttContext,
     bool isTransitionValid = false;
 
     assert( pMqttContext != NULL );
+    __CPROVER_assume( pMqttContext != NULL );
+
     assert( packetId != MQTT_PACKET_ID_INVALID );
+    __CPROVER_assume( packetId != MQTT_PACKET_ID_INVALID );
+
     assert( qos != MQTTQoS0 );
+    __CPROVER_assume( qos != MQTTQoS0 );
+
 
     /* This will always succeed for an incoming publish. This is due to the fact
      * that the passed in currentState must be MQTTStateNull, since

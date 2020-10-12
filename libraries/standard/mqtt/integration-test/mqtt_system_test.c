@@ -259,7 +259,11 @@ static void establishMqttSession( MQTTContext_t * pContext,
     MQTTApplicationCallbacks_t callbacks;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pSslContext != NULL );
+    __CPROVER_assume( pSslContext != NULL );
+
 
     /* The network buffer must remain valid for the lifetime of the MQTT context. */
     static uint8_t buffer[ NETWORK_BUFFER_SIZE ];
@@ -317,7 +321,11 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTTPublishInfo_t * pPublishInfo )
 {
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pPacketInfo != NULL );
+    __CPROVER_assume( pPacketInfo != NULL );
+
 
     /* Handle incoming publish. The lower 4 bits of the publish packet
      * type is used for the dup, QoS, and retain flags. Hence masking
@@ -325,6 +333,8 @@ static void eventCallback( MQTTContext_t * pContext,
     if( ( pPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         assert( pPublishInfo != NULL );
+        __CPROVER_assume( pPublishInfo != NULL );
+
         /* Handle incoming publish. */
 
         /* Cache information about the incoming PUBLISH message to process
@@ -432,6 +442,8 @@ static MQTTStatus_t subscribeToTopic( MQTTContext_t * pContext,
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -457,6 +469,8 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext,
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -481,6 +495,8 @@ static MQTTStatus_t publishToTopic( MQTTContext_t * pContext,
                                     MQTTQoS_t qos )
 {
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     MQTTPublishInfo_t publishInfo;
 
     /* Set the retain flag to false to avoid side-effects across test runs. */

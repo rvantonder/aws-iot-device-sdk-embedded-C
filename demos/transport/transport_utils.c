@@ -166,6 +166,8 @@ int tlsSetup( int tcpSocket,
     X509 * pRootCa = NULL;
 
     assert( tcpSocket >= 0 );
+    __CPROVER_assume( tcpSocket >= 0 );
+
 
     /* Setup for creating a TLS client. */
     SSL_CTX * pSslSetup = SSL_CTX_new( TLS_client_method() );

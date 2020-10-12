@@ -479,6 +479,8 @@ static int tlsSetup( int tcpSocket,
     X509 * pRootCa = NULL;
 
     assert( tcpSocket >= 0 );
+    __CPROVER_assume( tcpSocket >= 0 );
+
 
     /* Setup for creating a TLS client. */
     SSL_CTX * pSslSetup = SSL_CTX_new( TLS_client_method() );
@@ -718,6 +720,8 @@ static int getNextFreeIndexForOutgoingPublishes( uint8_t * pIndex )
     int status = EXIT_FAILURE;
 
     assert( outgoingPublishPackets != NULL );
+    __CPROVER_assume( outgoingPublishPackets != NULL );
+
 
     for( *pIndex = 0; *pIndex < MAX_OUTGOING_PUBLISHES; ( *pIndex )++ )
     {
@@ -737,7 +741,11 @@ static int getNextFreeIndexForOutgoingPublishes( uint8_t * pIndex )
 static void cleanupOutgoingPublishAt( uint8_t index )
 {
     assert( outgoingPublishPackets != NULL );
+    __CPROVER_assume( outgoingPublishPackets != NULL );
+
     assert( index < MAX_OUTGOING_PUBLISHES );
+    __CPROVER_assume( index < MAX_OUTGOING_PUBLISHES );
+
 
     /* Clear the outgoing publish packet. */
     ( void ) memset( &( outgoingPublishPackets[ index ] ),
@@ -752,6 +760,8 @@ static void cleanupOutgoingPublishes()
     uint8_t index = 0;
 
     assert( outgoingPublishPackets != NULL );
+    __CPROVER_assume( outgoingPublishPackets != NULL );
+
 
     /* Clean up all the saved outgoing publishes. */
     for( ; index < MAX_OUTGOING_PUBLISHES; index++ )
@@ -767,7 +777,11 @@ static void cleanupOutgoingPublishWithPacketID( uint16_t packetId )
     uint8_t index = 0;
 
     assert( outgoingPublishPackets != NULL );
+    __CPROVER_assume( outgoingPublishPackets != NULL );
+
     assert( packetId != MQTT_PACKET_ID_INVALID );
+    __CPROVER_assume( packetId != MQTT_PACKET_ID_INVALID );
+
 
     /* Clean up all the saved outgoing publishes. */
     for( ; index < MAX_OUTGOING_PUBLISHES; index++ )
@@ -791,6 +805,8 @@ static int handlePublishResend( MQTTContext_t * pContext )
     uint8_t index = 0U;
 
     assert( outgoingPublishPackets != NULL );
+    __CPROVER_assume( outgoingPublishPackets != NULL );
+
 
     /* Resend all the QoS2 publishes still in the array. These are the
      * publishes that hasn't received a PUBREC. When a PUBREC is
@@ -833,6 +849,8 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                                    uint16_t packetIdentifier )
 {
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
 
     /* Process incoming Publish. */
     LogInfo( ( "Incoming QOS : %d.", pPublishInfo->qos ) );
@@ -868,7 +886,11 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTTPublishInfo_t * pPublishInfo )
 {
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pPacketInfo != NULL );
+    __CPROVER_assume( pPacketInfo != NULL );
+
 
     /* Handle incoming publish. The lower 4 bits of the publish packet
      * type is used for the dup, QoS, and retain flags. Hence masking
@@ -876,6 +898,8 @@ static void eventCallback( MQTTContext_t * pContext,
     if( ( pPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         assert( pPublishInfo != NULL );
+        __CPROVER_assume( pPublishInfo != NULL );
+
         /* Handle incoming publish. */
         handleIncomingPublish( pPublishInfo, packetIdentifier );
     }
@@ -890,6 +914,8 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTT_EXAMPLE_TOPIC ) );
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
                 assert( globalSubscribePacketIdentifier == packetIdentifier );
+                __CPROVER_assume( globalSubscribePacketIdentifier == packetIdentifier );
+
                 break;
 
             case MQTT_PACKET_TYPE_UNSUBACK:
@@ -898,6 +924,8 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTT_EXAMPLE_TOPIC ) );
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
                 assert( globalUnsubscribePacketIdentifier == packetIdentifier );
+                __CPROVER_assume( globalUnsubscribePacketIdentifier == packetIdentifier );
+
                 break;
 
             case MQTT_PACKET_TYPE_PINGRESP:
@@ -953,7 +981,11 @@ static int establishMqttSession( MQTTContext_t * pContext,
     MQTTApplicationCallbacks_t callbacks;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pSslContext != NULL );
+    __CPROVER_assume( pSslContext != NULL );
+
 
     /* The network buffer must remain valid for the lifetime of the MQTT context. */
     static uint8_t buffer[ NETWORK_BUFFER_SIZE ];
@@ -1034,6 +1066,8 @@ static int disconnectMqttSession( MQTTContext_t * pContext )
     int status = EXIT_SUCCESS;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Send DISCONNECT. */
     MQTTStatus_t mqttStatus = MQTT_Disconnect( pContext );
@@ -1057,6 +1091,8 @@ static int subscribeToTopic( MQTTContext_t * pContext )
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -1100,6 +1136,8 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext )
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -1144,6 +1182,8 @@ static int publishToTopic( MQTTContext_t * pContext )
     uint8_t publishIndex = MAX_OUTGOING_PUBLISHES;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Get the next free index for the outgoing publish. All QoS2 outgoing
      * publishes are stored until a PUBREC is received. These messages are

@@ -503,6 +503,8 @@ static void handleIncomingPublish( MQTTPublishInfo_t * pPublishInfo,
                                    uint16_t packetIdentifier )
 {
     assert( pPublishInfo != NULL );
+    __CPROVER_assume( pPublishInfo != NULL );
+
 
     /* Process incoming Publish. */
     LogInfo( ( "Incoming QOS : %d.", pPublishInfo->qos ) );
@@ -536,7 +538,11 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTTPublishInfo_t * pPublishInfo )
 {
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( pPacketInfo != NULL );
+    __CPROVER_assume( pPacketInfo != NULL );
+
 
     /* Handle incoming publish. The lower 4 bits of the publish packet
      * type is used for the dup, QoS, and retain flags. Hence masking
@@ -544,6 +550,8 @@ static void eventCallback( MQTTContext_t * pContext,
     if( ( pPacketInfo->type & 0xF0U ) == MQTT_PACKET_TYPE_PUBLISH )
     {
         assert( pPublishInfo != NULL );
+        __CPROVER_assume( pPublishInfo != NULL );
+
         /* Handle incoming publish. */
         handleIncomingPublish( pPublishInfo, packetIdentifier );
     }
@@ -558,6 +566,8 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTT_EXAMPLE_TOPIC ) );
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
                 assert( globalSubscribePacketIdentifier == packetIdentifier );
+                __CPROVER_assume( globalSubscribePacketIdentifier == packetIdentifier );
+
                 break;
 
             case MQTT_PACKET_TYPE_UNSUBACK:
@@ -566,6 +576,8 @@ static void eventCallback( MQTTContext_t * pContext,
                            MQTT_EXAMPLE_TOPIC ) );
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
                 assert( globalUnsubscribePacketIdentifier == packetIdentifier );
+                __CPROVER_assume( globalUnsubscribePacketIdentifier == packetIdentifier );
+
                 break;
 
             case MQTT_PACKET_TYPE_PINGRESP:
@@ -594,7 +606,11 @@ static int establishMqttSession( MQTTContext_t * pContext,
     MQTTApplicationCallbacks_t callbacks;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
     assert( tcpSocket >= 0 );
+    __CPROVER_assume( tcpSocket >= 0 );
+
 
     /* The network buffer must remain valid for the lifetime of the MQTT context. */
     static uint8_t buffer[ NETWORK_BUFFER_SIZE ];
@@ -667,6 +683,8 @@ static int disconnectMqttSession( MQTTContext_t * pContext )
     int status = EXIT_SUCCESS;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Send DISCONNECT. */
     MQTTStatus_t mqttStatus = MQTT_Disconnect( pContext );
@@ -690,6 +708,8 @@ static int subscribeToTopic( MQTTContext_t * pContext )
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -733,6 +753,8 @@ static MQTTStatus_t unsubscribeFromTopic( MQTTContext_t * pContext )
     MQTTSubscribeInfo_t pSubscriptionList[ 1 ];
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Start with everything at 0. */
     ( void ) memset( ( void * ) pSubscriptionList, 0x00, sizeof( pSubscriptionList ) );
@@ -777,6 +799,8 @@ static int publishToTopic( MQTTContext_t * pContext )
     MQTTPublishInfo_t publishInfo;
 
     assert( pContext != NULL );
+    __CPROVER_assume( pContext != NULL );
+
 
     /* Some fields not used by this demo so start with everything at 0. */
     ( void ) memset( ( void * ) &publishInfo, 0x00, sizeof( publishInfo ) );
